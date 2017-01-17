@@ -3,19 +3,20 @@ package io.telenor.bustripper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Main {
 
+    private static final String SEARCH_TERM_ALLOWED_SYMBOLS_REGEXP = "[^a-zA-Z ]";
 
         /**
-         * Waits for bustrip results and print the 10 first results sorted by time.
+         * Waits for bustrip results and print the 10 first results sorted by expected arrival time.
         **/
         private static class BustripWaiter implements TripsCallback {
+
             private boolean done = false;
-            private Set<BusTrip> allTrips = new HashSet<BusTrip>();
+            private Set<BusTrip> allTrips = new HashSet<>();
             private static int maxtrips = 10;
 
             @Override
@@ -52,6 +53,9 @@ public class Main {
         }
 
         private static class InputGatherer implements Runnable {
+
+            private static final String EXIT_KEY = "q";
+
             public void run() {
                 System.out.println("Welcome to the bus line lookup tool. Add a search phrase to look up a bus stop.");
                 BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -60,8 +64,10 @@ public class Main {
                 do {
                     System.out.print("> ");
                     try {
-                        String searchterm = in.readLine();
-                        if("q" == searchterm || searchterm.length() == 0) {
+                        //#1: Normalize search term - remove all symbols except alphabetic and space
+                        String searchterm = normalizeSearchTerm(in.readLine());
+                        //#2: Compare strings using equals instead of comparing by reference
+                        if(EXIT_KEY.equals(searchterm) || searchterm.length() == 0) {
                             System.exit(0);
                         }
                         System.out.println("Looking up " + searchterm);
@@ -69,18 +75,18 @@ public class Main {
                         new Thread(new FindBusStop(waiter, searchterm)).start();
                         waiter.waitForCompletion();
                     }
-                    catch(IOException io) {
+                    catch (IOException | InterruptedException ex) {
                         done = true;
                     }
-                    catch(InterruptedException uh) {
-                        done = true;
-                    }
+
                 } while (!done);
 
             }
         }
 
-
+        private static String normalizeSearchTerm(String input) {
+            return input.replaceAll(SEARCH_TERM_ALLOWED_SYMBOLS_REGEXP, "");
+        }
 
 
         public static void main(String[] args) {

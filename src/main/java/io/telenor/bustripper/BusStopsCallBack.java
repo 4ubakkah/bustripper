@@ -1,16 +1,12 @@
 package io.telenor.bustripper;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.Response;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-
 import java.io.IOException;
-import java.util.Arrays;
 
-/**
- *
- */
 public class BusStopsCallBack implements InvocationCallback<Response> {
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -31,7 +27,10 @@ public class BusStopsCallBack implements InvocationCallback<Response> {
             for(int i = 0; i< stops.length && i<10;i++) {
                 BusStop stop = stops[i];
                 boolean isLast = stop == stops[stops.length -1];
-                new Thread(new FindBusLinesForStop(stop.getId(), listener, isLast)).start();
+
+                if (LocationType.STOP.getValue().equals(stop.getPlaceType())) {
+                    new Thread(new FindBusLinesForStop(stop.getId(), listener, isLast)).start();
+                }
             }
         } catch (IOException e) {
             listener.failedGettingTrips(e);

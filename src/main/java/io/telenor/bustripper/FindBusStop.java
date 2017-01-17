@@ -10,13 +10,10 @@ import javax.ws.rs.core.MediaType;
  */
 public class FindBusStop implements Runnable {
 
-
     private static final String SEARCH_URL = "http://reisapi.ruter.no/Place/GetPlaces/";
 
     private String searchTerm;
-
     private Client client;
-
     private TripsCallback listener;
 
     public FindBusStop(TripsCallback callback, String searchTerm) {

@@ -12,7 +12,6 @@ import java.util.Date;
 
 /**
  * FINDS a busline for stop ID
- * http://reisapi.ruter.no/StopVisit/GetDepartures/2190021?datetime=2016-11-22T12:10:00
  */
 public class FindBusLinesForStop implements Runnable {
 
@@ -32,7 +31,6 @@ public class FindBusLinesForStop implements Runnable {
     }
 
     public void run() {
-
         String formattedDate = formatter.format(new Date());
 
         ClientConfig configuration = new ClientConfig();
@@ -46,7 +44,6 @@ public class FindBusLinesForStop implements Runnable {
 
         final AsyncInvoker asyncInvoker = invocationBuilder.async();
         asyncInvoker.get(new BusTripsCallBack(target, listener, last));
-
     }
 
 
